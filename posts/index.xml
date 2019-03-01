@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; &lt;a href=&#34;https://github.com/sobychacko&#34;&gt;Soby Chacko&lt;/a&gt; 2018</copyright>
-    <lastBuildDate>Fri, 02 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 01 Mar 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://sobychacko.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Stream processing with Spring Cloud Stream and Kafka Streams 101</title>
+      <link>https://sobychacko.github.io/posts/blog1/</link>
+      <pubDate>Fri, 01 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://sobychacko.github.io/posts/blog1/</guid>
+      <description>Stream processing with Spring Cloud Stream and Kafka Streams 101 In this blog, we are going to explore how Spring Cloud Stream and Kafka Streams can be used to write basic stateless stream processing applications. Kafka Streams is a great library for writing very powerful streaming applications and Spring Cloud Stream provides a very familiar programming model to making the task of writing such applications easier.
+ The application that we develop is a very trivial one, but it will introduce the basic programming model that can be used for advanced applications.</description>
+    </item>
     
     <item>
       <title>Testing</title>
@@ -19,16 +29,6 @@
       
       <guid>https://sobychacko.github.io/posts/my-first-post/</guid>
       <description>hello world!</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://sobychacko.github.io/posts/blog1/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://sobychacko.github.io/posts/blog1/</guid>
-      <description>Stream processing with Spring Cloud Stream and Kafka Streams 101 In this blog, we are going to explore how Spring Cloud Stream and Kafka Streams can be used to write basic stateless stream processing applications. Kafka Streams is a great library for writing very powerful streaming applications and Spring Cloud Stream provides a very familiar programming model to making the task of writing such applications easier.
- The application that we develop is a very trivial one, but it will introduce the basic programming model that can be used for advanced applications.</description>
     </item>
     
   </channel>
