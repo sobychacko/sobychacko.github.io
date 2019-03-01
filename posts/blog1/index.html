@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+<title> | Soby Chacko</title>
+
+<link rel="stylesheet" href="https://sobychacko.github.io//css/styles.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" 
+integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/zenburn.min.css" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="https://sobychacko.github.io//js/highlight.js"></script>
+
+
+
+
+
+
+<div class="container">
+    <nav class="navbar level">
+      <div class="navbar-brand">
+          <a class="nav-item" href="https://sobychacko.github.io/"><h1 class="title is-3">Soby Chacko</h1></a>
+      </div>           
+      <div class="navbar-menu has-text-centered is-active">
+          <div class="navbar-end is-centered">
+              
+                <a href="https://sobychacko.github.io/about">
+                  <span class="icon">
+                    <i class="fas fa-info"></i>
+                  </span>
+                </a>
+              
+                <a href="https://github.com/sobychacko/">
+                  <span class="icon">
+                    <i class="fab fa-github"></i>
+                  </span>
+                </a>
+              
+                <a href="https://www.linkedin.com/in/sobychacko/">
+                  <span class="icon">
+                    <i class="fab fa-linkedin-in"></i>
+                  </span>
+                </a>
+              
+                <a href="https://twitter.com/sobychacko/">
+                  <span class="icon">
+                    <i class="fab fa-twitter"></i>
+                  </span>
+                </a>
+              
+           </div>
+      </div>
+    </nav>
+  </div>
+<div class="container">
+  <h2 class="subtitle is-6">January 1, 0001</h2>
+  <h1 class="subtitle is-size-4-mobile is-size-3-desktop"></h1>
+  <div class="content">
+    <div class="sect2">
+<h3 id="_stream_processing_with_spring_cloud_stream_and_kafka_streams_101">Stream processing with Spring Cloud Stream and Kafka Streams 101</h3>
+<div class="paragraph">
+<p>In this blog, we are going to explore how Spring Cloud Stream and Kafka Streams can be used
+to write basic stateless stream processing applications. Kafka Streams is a great library for writing very powerful
+streaming applications and Spring Cloud Stream provides a very familiar programming model to making the
+task of writing such applications easier.</p>
+</div>
+<div class="paragraph">
+<p>The application that we develop is a very trivial one, but it will
+introduce the basic programming model that can be used for advanced applications.</p>
+</div>
+<div class="paragraph">
+<p>This is a stateless application that simply prints the incoming stream of records
+from a Kafka topic on the console and then return that same stream unchanged to another Kafka topic.</p>
+</div>
+<div class="paragraph">
+<p>First lets bootstrap the application. An easier way to do so is to use the Spring Initializr.
+Go to <a href="https://start.spring.io" class="bare">https://start.spring.io</a> and then search for "Cloud Stream" and "Kafka Streams". Also provide appropriate maven coordinates.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://raw.githubusercontent.com/sobychacko/blog/master/static/blog1-image-1.jpg" alt="Spring Initializr">
+</div>
+</div>
+<div class="paragraph">
+<p>The artifact is named as stream-processing-basic.</p>
+</div>
+<div class="paragraph">
+<p>Hit the "Generate Project" button.</p>
+</div>
+<div class="paragraph">
+<p>Extract the zip archive file and then open the project in your favorite IDE.</p>
+</div>
+<div class="paragraph">
+<p>If you examine the dependencies for the project, you can see that the
+project contains all the necessary components such as core spring cloud stream (<code>spring-cloud-stream</code>),
+kafka streams binder (<code>spring-cloud-stream-binder-kafkap-streams</code>), spring kafka (<code>spring-kafka</code>) and other Spring Boot components.</p>
+</div>
+<div class="paragraph">
+<p>Open the class <code>StreamProcessingBasicApplication</code>.</p>
+</div>
+<div class="paragraph">
+<p>At this point, this is a basic bare bone class that is only annotated with a Spring Boot annotation.
+You can run it as a boot application right now, but it won&#8217;t do much.</p>
+</div>
+<div class="paragraph">
+<p>We are going to incrementally add content to this class and make it a stateless stream processing application.</p>
+</div>
+<div class="paragraph">
+<p>The very first thing that we need to do is to add bindings for the input and output.</p>
+</div>
+<div class="paragraph">
+<p>Kafka Streams binder provides a basic interface that contains a singe input and output as <code>KStream</code> types.
+If your application only needs a single KStream input and a single KStream output, you can use this interface.
+After adding the binding, this is how the code looks like. Note the use of the <code>EnableBinding</code> annotation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>@SpringBootApplication
+@EnableBinding(KafkaStreamsProcessor.class)
+public class StreamProcessingBasicApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(StreamProcessingBasicApplication.class, args);
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now that the bindings are provided to the application, we should start using them.
+We need to write a processor using these bindings. For that, we can use the <code>StreamListener</code> and <code>SendTo</code> annotations.</p>
+</div>
+<div class="paragraph">
+<p>Add the following method to the application.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>@StreamListener("input")
+	@SendTo("output")
+	public KStream&lt;?, String&gt; process(KStream&lt;?, String&gt; input) {
+		return input.peek((k, v) -&gt; System.out.println("Value received: " + v));
+	}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As mentioned before, it doesn&#8217;t do much, but worth mentioning a few details.
+<code>StreamListener</code> listens for any records coming through the input binding and convert them as <code>KStream</code> objects
+and pass them down to the method. The method peeks at the records and prints them on the console.
+Then it returns the record unchanged to a Kafka topic through the output binding.
+The <code>SendTo</code> annotation is used to specify the name of the output binding.</p>
+</div>
+<div class="paragraph">
+<p>By default, Spring Cloud Stream will expect the same name for Kafka topics as the bindings, i.e. <code>input</code> and <code>output</code>.
+In most cases, you want to change this though.
+For e.g. if you want to receive data from a topic named <code>foo</code> and send data to another topic <code>bar</code>, you can do that by providing the following configuration.</p>
+</div>
+<div class="paragraph">
+<p>Lets say you want to receive data from a topic named <code>foo</code> and send the output to another topic named <code>bar</code>.
+You can provide the following configuration.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>spring:
+  cloud:
+    stream:
+      bindings:
+        input.destination: foo
+        output.destination: bar</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Kafka Stream applications require an application id. There are multiple ways you can provide the application id through Spring Cloud Stream.
+However, for the purposes of this simple application, we can just provide a property <code>spring.application.name</code> with a value and that will be used by the binder
+as the application id.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>spring.application.name=basic-stateless-stream-processing</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try running the application either on your IDE or from CLI. If you are running from CLI, build the project first by running <code>./mvnw clean package</code>. Then run
+<code>java -jar &lt;path-to-the-jar`</code>.</p>
+</div>
+<div class="paragraph">
+<p>Send some data to the topic <code>foo</code> and watch the application console. You should see the value getting logged.
+You can also watch the output topic <code>bar</code> and see the same data over there.</p>
+</div>
+<div class="paragraph">
+<p>There it is. In this article, went through the basic steps involved in creating a stateless stream processing application using Spring Cloud Stream and Kafka Streams.</p>
+</div>
+</div>
+
+  </div>
+</div>
+<div class="container has-text-centered">
+    
+</div>
+
+<div class="container has-text-centered">
+  
+</div>
+<section class="section">
+  <div class="container has-text-centered">
+    <p>&copy; <a href="https://github.com/sobychacko">Soby Chacko</a> 2018</p>
+  </div>
+</section>
+
+
