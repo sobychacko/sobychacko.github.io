@@ -69,59 +69,59 @@ integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbi
 <p>In this blog, we are going to explore how Spring Cloud Stream and Kafka Streams can be used
 to write basic stateless stream processing applications. Kafka Streams is a great library for writing very powerful
 streaming applications and Spring Cloud Stream provides a very familiar programming model to making the
-task of writing such applications easier.<br></p>
-</div>
-<div class="paragraph">
-<p>The application that we develop is a very trivial one, but it will
-introduce the basic programming model that can be used for advanced applications.<br></p>
-</div>
-<div class="paragraph">
-<p>This is a stateless application that simply prints the incoming stream of records
-from a Kafka topic on the console and then return that same stream unchanged to another Kafka topic.<br></p>
-</div>
-<div class="paragraph">
-<p>First lets bootstrap the application. An easier way to do so is to use the Spring Initializr.
-Go to <a href="https://start.spring.io" class="bare">https://start.spring.io</a> and then search for "Cloud Stream" and "Kafka Streams". Also provide appropriate maven coordinates.<br></p>
-</div>
-<div class="paragraph">
-<p>Here is an example.<br></p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="https://raw.githubusercontent.com/sobychacko/blog/master/static/blog1-image-1.jpg" alt="Spring Initializr">
-</div>
-</div>
-<div class="paragraph">
-<p>The artifact is named as stream-processing-basic.<br></p>
-</div>
-<div class="paragraph">
-<p>Hit the "Generate Project" button.<br></p>
-</div>
-<div class="paragraph">
-<p>Extract the zip archive file and then open the project in your favorite IDE.<br></p>
-</div>
-<div class="paragraph">
-<p>If you examine the dependencies for the project, you can see that the
+task of writing such applications easier.
+<br>
+<br>
+The application that we develop is a very trivial one, but it will
+introduce the basic programming model that can be used for advanced applications.
+<br>
+<br>
+This is a stateless application that simply prints the incoming stream of records
+from a Kafka topic on the console and then return that same stream unchanged to another Kafka topic.
+<br>
+<br>
+First lets bootstrap the application. An easier way to do so is to use the Spring Initializr.
+Go to <a href="https://start.spring.io" class="bare">https://start.spring.io</a> and then search for "Cloud Stream" and "Kafka Streams". Also provide appropriate maven coordinates.
+<br>
+<br>
+Here is an example.
+<br>
+<br>
+image::https://raw.githubusercontent.com/sobychacko/blog/master/static/blog1-image-1.jpg[Spring Initializr]
+<br>
+<br>
+The artifact is named as stream-processing-basic.
+<br>
+<br>
+Hit the "Generate Project" button.<br>
+<br>
+<br>
+Extract the zip archive file and then open the project in your favorite IDE.
+<br>
+<br>
+If you examine the dependencies for the project, you can see that the
 project contains all the necessary components such as core spring cloud stream (<strong>spring-cloud-stream</strong>),
-kafka streams binder (<strong>spring-cloud-stream-binder-kafkap-streams</strong>), spring kafka (<strong>spring-kafka</strong>) and other Spring Boot components.<br></p>
-</div>
-<div class="paragraph">
-<p>Open the class <strong>StreamProcessingBasicApplication</strong>.<br></p>
-</div>
-<div class="paragraph">
-<p>At this point, this is a basic bare bone class that is only annotated with a Spring Boot annotation.
-You can run it as a boot application right now, but it won&#8217;t do much.<br></p>
-</div>
-<div class="paragraph">
-<p>We are going to incrementally add content to this class and make it a stateless stream processing application.<br></p>
-</div>
-<div class="paragraph">
-<p>The very first thing that we need to do is to add bindings for the input and output.<br></p>
-</div>
-<div class="paragraph">
-<p>Kafka Streams binder provides a basic interface that contains a singe input and output as <strong>KStream</strong> types.
+kafka streams binder (<strong>spring-cloud-stream-binder-kafkap-streams</strong>), spring kafka (<strong>spring-kafka</strong>) and other Spring Boot components.
+<br>
+<br>
+Open the class <strong>StreamProcessingBasicApplication</strong>.
+<br>
+<br>
+At this point, this is a basic bare bone class that is only annotated with a Spring Boot annotation.
+You can run it as a boot application right now, but it won&#8217;t do much.
+<br>
+<br>
+We are going to incrementally add content to this class and make it a stateless stream processing application.
+<br>
+<br>
+The very first thing that we need to do is to add bindings for the input and output.
+<br>
+<br>
+Kafka Streams binder provides a basic interface that contains a singe input and output as <strong>KStream</strong> types.
 If your application only needs a single KStream input and a single KStream output, you can use this interface.
-After adding the binding, this is how the code looks like. Note the use of the <strong>EnableBinding</strong> annotation.<br></p>
+After adding the binding, this is how the code looks like. Note the use of the <strong>EnableBinding</strong> annotation.
+<br>
+<br></p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -136,11 +136,15 @@ public class StreamProcessingBasicApplication {
 </div>
 </div>
 <div class="paragraph">
-<p>Now that the bindings are provided to the application, we should start using them.
-We need to write a processor using these bindings. For that, we can use the <strong>StreamListener</strong> and <strong>SendTo</strong> annotations.</p>
-</div>
-<div class="paragraph">
-<p>Add the following method to the application.</p>
+<p><br>
+<br>
+Now that the bindings are provided to the application, we should start using them.
+We need to write a processor using these bindings. For that, we can use the <strong>StreamListener</strong> and <strong>SendTo</strong> annotations.
+<br>
+<br>
+Add the following method to the application.
+<br>
+<br></p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -152,16 +156,20 @@ We need to write a processor using these bindings. For that, we can use the <str
 </div>
 </div>
 <div class="paragraph">
-<p>As mentioned before, it doesn&#8217;t do much, but worth mentioning a few details.
+<p><br>
+<br>
+As mentioned before, it doesn&#8217;t do much, but worth mentioning a few details.
 <strong>StreamListener</strong> listens for any records coming through the input binding and convert them as <strong>KStream</strong> objects
 and pass them down to the method. The method peeks at the records and prints them on the console.
 Then it returns the record unchanged to a Kafka topic through the output binding.
-The <code>SendTo</code> annotation is used to specify the name of the output binding.<br></p>
-</div>
-<div class="paragraph">
-<p>By default, Spring Cloud Stream will expect the same name for Kafka topics as the bindings, i.e. <strong>input</strong> and <strong>output</strong>.
+The <strong>SendTo</strong> annotation is used to specify the name of the output binding.
+<br>
+<br>
+By default, Spring Cloud Stream will expect the same name for Kafka topics as the bindings, i.e. <em>input</em> and <em>output</em>.
 In most cases, you want to change this though.
-For e.g. if you want to receive data from a topic named <code>foo</code> and send data to another topic <code>bar</code>, you can do that by providing the following configuration.<br></p>
+For e.g. if you want to receive data from a topic named <em>foo</em> and send data to another topic <em>bar</em>, you can do that by providing the following configuration.
+<br>
+<br></p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -174,9 +182,13 @@ For e.g. if you want to receive data from a topic named <code>foo</code> and sen
 </div>
 </div>
 <div class="paragraph">
-<p>Kafka Stream applications require an application id. There are multiple ways you can provide the application id through Spring Cloud Stream.
+<p><br>
+<br>
+Kafka Stream applications require an application id. There are multiple ways you can provide the application id through Spring Cloud Stream.
 However, for the purposes of this simple application, we can just provide a property <code>spring.application.name</code> with a value and that will be used by the binder
-as the application id.<br></p>
+as the application id.
+<br>
+<br></p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -184,15 +196,17 @@ as the application id.<br></p>
 </div>
 </div>
 <div class="paragraph">
-<p>Try running the application either on your IDE or from CLI. If you are running from CLI, build the project first by running <strong>./mvnw clean package</strong>. Then run
-<strong>java -jar &lt;path-to-the-jar</strong>.<br></p>
-</div>
-<div class="paragraph">
-<p>Send some data to the topic <code>foo</code> and watch the application console. You should see the value getting logged.
-You can also watch the output topic <code>bar</code> and see the same data over there.<br></p>
-</div>
-<div class="paragraph">
-<p>There it is. In this article, went through the basic steps involved in creating a stateless stream processing application using Spring Cloud Stream and Kafka Streams.</p>
+<p><br>
+<br>
+Try running the application either on your IDE or from CLI. If you are running from CLI, build the project first by running <strong>./mvnw clean package</strong>. Then run
+<strong>java -jar &lt;path-to-the-jar</strong>.
+<br>
+<br>
+Send some data to the topic <em>foo</em> and watch the application console. You should see the value getting logged.
+You can also watch the output topic <em>bar</em> and see the same data over there.
+<br>
+<br>
+There it is. In this article, went through the basic steps involved in creating a stateless stream processing application using Spring Cloud Stream and Kafka Streams.</p>
 </div>
 
   </div>

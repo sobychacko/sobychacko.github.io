@@ -18,8 +18,7 @@
       <pubDate>Fri, 01 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://sobychacko.github.io/posts/blog1/</guid>
-      <description>In this blog, we are going to explore how Spring Cloud Stream and Kafka Streams can be used to write basic stateless stream processing applications. Kafka Streams is a great library for writing very powerful streaming applications and Spring Cloud Stream provides a very familiar programming model to making the task of writing such applications easier.
- The application that we develop is a very trivial one, but it will introduce the basic programming model that can be used for advanced applications.</description>
+      <description>In this blog, we are going to explore how Spring Cloud Stream and Kafka Streams can be used to write basic stateless stream processing applications. Kafka Streams is a great library for writing very powerful streaming applications and Spring Cloud Stream provides a very familiar programming model to making the task of writing such applications easier. The application that we develop is a very trivial one, but it will introduce the basic programming model that can be used for advanced applications.</description>
     </item>
     
     <item>
