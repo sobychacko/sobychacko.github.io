@@ -145,10 +145,10 @@ Add the following method to the application.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code>@StreamListener("input")
-	@SendTo("output")
-	public KStream&lt;?, String&gt; process(KStream&lt;?, String&gt; input) {
-		return input.peek((k, v) -&gt; System.out.println("Value received: " + v));
-	}</code></pre>
+@SendTo("output")
+public KStream&lt;?, String&gt; process(KStream&lt;?, String&gt; input) {
+	return input.peek((k, v) -&gt; System.out.println("Value received: " + v));
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
