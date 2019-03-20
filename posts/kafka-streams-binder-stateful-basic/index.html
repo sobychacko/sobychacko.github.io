@@ -65,19 +65,15 @@ integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbi
   <h2 class="subtitle is-6">March 1, 2019</h2>
   <h1 class="subtitle is-size-4-mobile is-size-3-desktop">Basic stateful streaming application using Spring Cloud Stream and Kafka Streams</h1>
   <div class="content">
-    <div class="paragraph">
-<p>Continuing on what we started <a href="https://sobychacko.github.io/posts/kafka-streams-binder-basic/">here</a>, in this blog,
+    <p>Continuing on what we started <a href="https://sobychacko.github.io/posts/kafka-streams-binder-basic/">here</a>, in this blog,
 we are looking at how a basic stateful stream application can be written using Spring Cloud Stream and Kafka Streams.</p>
-</div>
-<div class="paragraph">
+
 <p>Writing a stateless streaming application is very straightforward in Spring Cloud Stream, but when you have to
 include state about your data, then we have more things to worry about. Kafka Streams make it really easy
 to write stateful applications and Spring Cloud Stream provides tighter integrations for that.</p>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s focus on a single, simple use case.</p>
-</div>
-<div class="paragraph">
+
+<p>Let&rsquo;s focus on a single, simple use case.</p>
+
 <p>Imagine that your company is a credit card processing gateway and your business depends on the number of transactions
 you approve through your gateway. If there is a higher rate of denied transactions due to your failure, then
 that means lost revenue for you. In this situation, what most customers do is to re-route the request to a different
@@ -86,28 +82,22 @@ You want to find this information relatively sooner so that you can take proacti
 these kind of gateway systems are very complex and involve many parameters. Often times, the transactions per minute
 are in the hundreds of thousands of ranges, if not more. For the purposes of this blog, lets limit the scope to a very minimum.
 You want to find out how your approval/denial software is doing every 30 seconds so that you can detect any unusual denial rate hikes.</p>
-</div>
-<div class="paragraph">
+
 <p>As you can notice, this requirement involves the need for some state. Why? Because you need to store the count of something based
 on the data you received over a period of time window. Where is your app going to store this state? Traditionally, applications use some kind of
 in-memory store, other database solutions, caches etc. for this purpose. Kafka Streams handles this natively and uses a built in
 RocksDB database behind the scenes to store the state. All these are completely hidden from the user and handled behind the scenes.
 You express your intention to store the state using the API.</p>
-</div>
-<div class="paragraph">
+
 <p>Although this is a contrived use case, it is not hard to imagine seeing these kinds of situations regularly in the enterprise.</p>
-</div>
-<div class="paragraph">
+
 <p>Lets write some code and see this in action.</p>
-</div>
-<div class="paragraph">
+
 <p>We are going to make some assumptions about the data structures used in this example.
 Following is the structure of the incoming data and we call it as <code>TransactionStatus</code>.
 In the stateful processor we will write, the incoming data is a stream of <code>TransactionStatus</code> objects.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>class TransactionStatus {
+
+<pre><code class="language-java">class TransactionStatus {
 
   private int status; // 0 (approved) or 1 (denied)
   private int failCause;
@@ -116,10 +106,9 @@ In the stateful processor we will write, the incoming data is a stream of <code>
   ...
   //Setters and Getters are omitted
 
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
+}
+</code></pre>
+
 <p>This is a very minimal basic class that satisfies our use case.
 Among many possible other things, it gives two important details - one is the overall status of the
 transaction whether it was approved or denied and the other is the reason for the failure.
@@ -127,22 +116,17 @@ Lets assume that if we get a status of 1, that means the transaction was denied.
 Similarly, if the failCause is from 0 to 5 it means that it is a gateway failure.
 Each of these various fail cause could mean that a particular type of failure at the gateway occurred such as network connection issues, software failures, hardware malfunction etc.
 You want to find out the aggregate for each of these category of failures so that you can track if and take actions if it crosses a particular threshold that causes concern for you.</p>
-</div>
-<div class="paragraph">
+
 <p>In a nutshell, you want to capture all those transactions with overall status of 1
 and the failCause between 0 and 5. This will effectively give you the transactions those have failed because of issues on your end.</p>
-</div>
-<div class="paragraph">
+
 <p>We want to write a processor that counts the number of such transactions every minute - i.e. a one minute tumbling window.
 Every minute, each time a transaction failure occurs which is due to a gateway failure, you want to find out the failure count so far in that minute for that category and write that information to
 a Kafka topic. This value will be reset to zero after the window is expired.</p>
-</div>
-<div class="paragraph">
+
 <p>This is going to be the blueprint for the Java object that is going to be returned from the processor.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>class TransactionFailCounter {
+
+<pre><code class="language-java">class TransactionFailCounter {
 
   private int failCause;
   private int failCount;
@@ -151,21 +135,17 @@ a Kafka topic. This value will be reset to zero after the window is expired.</p>
 
   //other details are omitted
 
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
+}
+</code></pre>
+
 <p>This will represent the number of failures within a range of time window.
 Each record of this object will tell you the fail count so far for a particular category of fail cause.
 It also includes the current time window to which the record belongs.</p>
-</div>
-<div class="paragraph">
+
 <p>Here is the main processor code:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>@StreamListener("input")
-@SendTo("output")
+
+<pre><code class="language-java">@StreamListener(&quot;input&quot;)
+@SendTo(&quot;output&quot;)
 public KStream&lt;?, TransactionFailMonitor&gt; process(KStream&lt;?, TransactionStatus&gt; tansactionStream) {
 
 	JsonSerde&lt;TransactionStatus&gt; jsonSerde = new JsonSerde&lt;&gt;(TransactionStatus.class);
@@ -175,81 +155,64 @@ public KStream&lt;?, TransactionFailMonitor&gt; process(KStream&lt;?, Transactio
 			.map((k, v) -&gt; new KeyValue&lt;&gt;(v.getFailCause(), v))
 			.groupByKey(Serialized.with(Serdes.Integer(), jsonSerde))
 			.windowedBy(TimeWindows.of(60_000))
-			.count(Materialized.as("transactions-failure-counter-store"))
+			.count(Materialized.as(&quot;transactions-failure-counter-store&quot;))
 			.toStream()
 			.map((k,v) -&gt; new KeyValue&lt;&gt;(null,
 					new TransactionFailMonitor(k.key(), v, k.window().start(), k.window().end())));
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
+}
+</code></pre>
+
 <p>Once you have this processor ready, you can send some test data to the destination topic to see this in action.
 In the real world scenario, you will most likely receive this information from some source data, but for testing this
 we can use the console producer and consumer scripts that come with Kafka.</p>
-</div>
-<div class="paragraph">
+
 <p>Start the console producer (assuming that your input topic is named as <code>transactions</code>).</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>kafka-console-producer.sh --broker-list localhost:9092 --topic transactions</code></pre>
-</div>
-</div>
-<div class="paragraph">
+
+<pre><code>kafka-console-producer.sh --broker-list localhost:9092 --topic transactions
+</code></pre>
+
 <p>Similarly, start the console consumer (assuming that your output topic is named as <code>failures</code>)</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic failures</code></pre>
-</div>
-</div>
-<div class="paragraph">
+
+<pre><code>kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic failures
+</code></pre>
+
 <p>Enter some input data with properly formatted JSON as shown below.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>&gt;{"status":1,"failCause":0}
-&gt;{"status":1,"failCause":1}
-&gt;{"status":1,"failCause":3}
-&gt;{"status":1,"failCause":5}
-&gt;{"status":1,"failCause":2}
-&gt;{"status":1,"failCause":5}
-&gt;{"status":1,"failCause":4}
-&gt;{"status":1,"failCause":5}
-&gt;{"status":1,"failCause":2}
-&gt;{"status":1,"failCause":1}
+
+<pre><code>&gt;{&quot;status&quot;:1,&quot;failCause&quot;:0}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:1}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:3}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:5}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:2}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:5}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:4}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:5}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:2}
+&gt;{&quot;status&quot;:1,&quot;failCause&quot;:1}
 ....
-....</code></pre>
-</div>
-</div>
-<div class="paragraph">
+....
+</code></pre>
+
 <p>Spring Cloud Stream will automatically convert this JSON data to the proper Java objects using a message conversion strategy before
 handing this to the processor above.</p>
-</div>
-<div class="paragraph">
+
 <p>On the consumer console, you should see data as below:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>{"failCause":0,"failCount":2,"windowStartTime":1553120520000,"windowEndTime":1553120580000}
-{"failCause":1,"failCount":1,"windowStartTime":1553120520000,"windowEndTime":1553120580000}
-{"failCause":2,"failCount":1,"windowStartTime":1553120520000,"windowEndTime":1553120580000}
-{"failCause":3,"failCount":1,"windowStartTime":1553120520000,"windowEndTime":1553120580000}
-{"failCause":5,"failCount":1,"windowStartTime":1553120520000,"windowEndTime":1553120580000}
-{"failCause":2,"failCount":1,"windowStartTime":1553120580000,"windowEndTime":1553120640000}
-{"failCause":5,"failCount":1,"windowStartTime":1553120580000,"windowEndTime":1553120640000}
-{"failCause":4,"failCount":1,"windowStartTime":1553120580000,"windowEndTime":1553120640000}
-{"failCause":5,"failCount":2,"windowStartTime":1553120580000,"windowEndTime":1553120640000}
-{"failCause":2,"failCount":2,"windowStartTime":1553120580000,"windowEndTime":1553120640000}
-{"failCause":1,"failCount":1,"windowStartTime":1553120580000,"windowEndTime":1553120640000}</code></pre>
-</div>
-</div>
-<div class="paragraph">
+
+<pre><code>{&quot;failCause&quot;:0,&quot;failCount&quot;:2,&quot;windowStartTime&quot;:1553120520000,&quot;windowEndTime&quot;:1553120580000}
+{&quot;failCause&quot;:1,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120520000,&quot;windowEndTime&quot;:1553120580000}
+{&quot;failCause&quot;:2,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120520000,&quot;windowEndTime&quot;:1553120580000}
+{&quot;failCause&quot;:3,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120520000,&quot;windowEndTime&quot;:1553120580000}
+{&quot;failCause&quot;:5,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120520000,&quot;windowEndTime&quot;:1553120580000}
+{&quot;failCause&quot;:2,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120580000,&quot;windowEndTime&quot;:1553120640000}
+{&quot;failCause&quot;:5,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120580000,&quot;windowEndTime&quot;:1553120640000}
+{&quot;failCause&quot;:4,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120580000,&quot;windowEndTime&quot;:1553120640000}
+{&quot;failCause&quot;:5,&quot;failCount&quot;:2,&quot;windowStartTime&quot;:1553120580000,&quot;windowEndTime&quot;:1553120640000}
+{&quot;failCause&quot;:2,&quot;failCount&quot;:2,&quot;windowStartTime&quot;:1553120580000,&quot;windowEndTime&quot;:1553120640000}
+{&quot;failCause&quot;:1,&quot;failCount&quot;:1,&quot;windowStartTime&quot;:1553120580000,&quot;windowEndTime&quot;:1553120640000}
+</code></pre>
+
 <p>On the outbound also, Spring Cloud Stream will send the data as a JSON string.</p>
-</div>
-<div class="paragraph">
+
 <p>The code used in this blog and instructions for running the application can be found <a href="https://github.com/schacko-samples/basic-stateful-sample">here</a>.</p>
-</div>
 
   </div>
 </div>

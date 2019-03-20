@@ -19,7 +19,7 @@
       
       <guid>https://sobychacko.github.io/posts/kafka-streams-binder-stateful-basic/</guid>
       <description>Continuing on what we started here, in this blog, we are looking at how a basic stateful stream application can be written using Spring Cloud Stream and Kafka Streams.
- Writing a stateless streaming application is very straightforward in Spring Cloud Stream, but when you have to include state about your data, then we have more things to worry about. Kafka Streams make it really easy to write stateful applications and Spring Cloud Stream provides tighter integrations for that.</description>
+Writing a stateless streaming application is very straightforward in Spring Cloud Stream, but when you have to include state about your data, then we have more things to worry about. Kafka Streams make it really easy to write stateful applications and Spring Cloud Stream provides tighter integrations for that.</description>
     </item>
     
     <item>
