@@ -75,13 +75,12 @@ to write stateful applications and Spring Cloud Stream provides tighter integrat
 <p>Let&rsquo;s focus on a single, simple use case.</p>
 
 <p>Imagine that your company is a credit card processing gateway and your business depends on the number of transactions
-you approve through your gateway. If there is a higher rate of denied transactions due to your failure, then
-that means lost revenue for you. In this situation, what most customers do is to re-route the request to a different
-gateway. So, you want to provide a quicker way to understand if there are denied transactions due to your problems.
+you approve through your gateway. If there is a higher rate of denied transactions due to failures on your end, then
+that is a concern for you. In this situation, what most customers do is to re-route the request to a different
+gateway and that means lost revenue for you. So, you want to provide a quicker way to monitor denied transactions.
 You want to find this information relatively sooner so that you can take proactive measures. In reality,
 these kind of gateway systems are very complex and involve many parameters. Often times, the transactions per minute
-are in the hundreds of thousands of ranges, if not more. For the purposes of this blog, lets limit the scope to a very minimum.
-You want to find out how your approval/denial software is doing every 30 seconds so that you can detect any unusual denial rate hikes.</p>
+are in the hundreds of thousands of ranges, if not more. For the purposes of this blog, lets limit the scope to a very minimum. You want to find out the number of denied transactions due to issues that you could have prevented. You also want to find this information in little chunks of time windows such as 1 minute, 5 minute, 1 hour etc.</p>
 
 <p>As you can notice, this requirement involves the need for some state. Why? Because you need to store the count of something based
 on the data you received over a period of time window. Where is your app going to store this state? Traditionally, applications use some kind of
